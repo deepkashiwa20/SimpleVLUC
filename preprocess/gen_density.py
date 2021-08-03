@@ -66,7 +66,7 @@ def gps2grid(input_file, output_file, mesh):
     print('gps2grid is successful', time.ctime())
 
 def g(x, all_grid):
-    x.drop(['time'], axis=1, inplace=True)
+    x = x.drop(['time'], axis=1)
     x = pd.merge(x, all_grid, how='outer')
     return x
 
@@ -77,8 +77,8 @@ def grid2video(input_file, output_file, mesh):
 
     data_grid = gps2grid.groupby(['time', 'grid']).size().reset_index()
     data_grid = data_grid.groupby('time').apply(g, all_grid=all_grid).reset_index('time')
-    data_grid.sort_values(by=['time', 'grid'], inplace=True)
-    data_grid.fillna(0, inplace=True)
+    data_grid = data_grid.sort_values(by=['time', 'grid'])
+    data_grid = data_grid.fillna(0)
     data_grid.columns = ['time', 'grid', 'num']
     grid_npy = data_grid.groupby(['time']).apply(lambda x: x.num.tolist())
     grid_npy = np.array(grid_npy.tolist())

@@ -35,9 +35,8 @@ This program takes the raw GPS trajectory data as input, as output (Timestep, He
 It runs day by day, therefore, the multi-process can be applied to a list of days.
 
 You can run the preprocess with the following commands (with ./data/simulation_result_formatted_wgs84.csv.gz):
-
-cd preprocess;
-python gen_density.py;
+cd preprocess
+python gen_density.py
 
 ./model
 This is the model folder.

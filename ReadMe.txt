@@ -10,8 +10,9 @@ python 3.7
 conda create -n python3.7 python=3.7
 conda activate python3.7
 conda install cudnn=7.6.5=cuda10.1_0
-pip install tensorflow-gpu==2.3.0
+pip install tensorflow-gpu==2.2.0
 pip install keras == 2.3.1
+https://docs.floydhub.com/guides/environments/
 
 ./data 
 This is the data foler.

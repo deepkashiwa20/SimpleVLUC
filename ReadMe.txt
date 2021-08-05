@@ -1,9 +1,17 @@
 Dependencies
 
-tensorflow-gpu >= 1.10.0
-keras >=  2.2.0
 pip install jismesh
 
+python 3.6
+pip install tensorflow-gpu 1.10.0 or 1.14.0
+pip install keras ==  2.2.0 or 2.2.5
+
+python 3.7
+conda create -n python3.7 python=3.7
+conda activate python3.7
+conda install cudnn=7.6.5=cuda10.1_0
+pip install tensorflow-gpu==2.3.0
+pip install keras == 2.3.1
 
 ./data 
 This is the data foler.

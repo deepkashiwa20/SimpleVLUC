@@ -54,7 +54,7 @@ Here is the deep learning model, ConvolutionalLSTM with Encoder-Decoder Architec
 
 You can run the model with the following commands:
 cd model
-python ConvLSTMEncoderDecoder.py -GPU-ID (int, default is GPU 3)
+python ConvLSTMEncoderDecoder.py GPUID (int, default is GPU 3)
 
 ./model/Param.py
 All the common parameters among different models are summarized here.

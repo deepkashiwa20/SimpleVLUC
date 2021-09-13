@@ -2,10 +2,12 @@ Dependencies
 
 pip install jismesh
 
+# If you want to use tensorflow 1.0, you follow here.
 python 3.6
 pip install tensorflow-gpu==1.10.0 or 1.14.0
 pip install keras==2.2.0 or 2.2.5
 
+# If you want to use tensorflow 2.0, you follow here.
 python 3.7
 conda create -n python3.7 python=3.7
 conda activate python3.7

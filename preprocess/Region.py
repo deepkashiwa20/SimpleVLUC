@@ -264,18 +264,113 @@ class Mesh(object):
 
         return JISMesh
 
+class Mesh1(object):
+    # 0, 1, 2, 3
+    # 4, 5, 6, 7
+    # 8, 9, 10, 11
+    # ......
+    def __init__(self, minLon, minLat, maxLon, maxLat, lonNum, latNum, size):
+        getcontext().prec = 8
+        self.minLon = Decimal(minLon)
+        self.maxLon = Decimal(maxLon)
+        self.minLat = Decimal(minLat)
+        self.maxLat = Decimal(maxLat)
+        self.lonNum = lonNum
+        self.latNum = latNum
+        self.dLon = (self.maxLon - self.minLon) / self.lonNum
+        self.dLat = (self.maxLat - self.minLat) / self.latNum
+        self.size = size
 
+        ID = 0
+        self.Index = {}
+        self.ReverseIndex = {}
+        for i in range(self.latNum):
+            for j in range(self.lonNum):
+                self.Index[ID] = (i, j)
+                self.ReverseIndex[(i, j)] = ID
+                ID += 1
+        
+        self.meshcodes = self.toJISMesh()
+        self.meshcode2id = {meshcode:i for i, meshcode in enumerate(self.meshcodes)}
+        self.id2meshcode = {i:meshcode for i, meshcode in enumerate(self.meshcodes)}
+        
+    def inMesh(self, x, y):
+        # x, y is index
+        if x >= 0 and x < self.latNum and y >= 0 and y < self.lonNum:
+            return True
+        else:
+            return False
+
+    def inMeshPoint(self, point):
+        # point is gps dict
+        if point.lon >= self.minLon and point.lon <= self.maxLon \
+                and point.lat >= self.minLat and point.lat <= self.maxLat:
+            return True
+        else:
+            return False
+
+    def inWhichGrid(self, point):
+        # point is gps dict
+        if self.inMeshPoint(point):
+            x = Decimal((self.maxLat - Decimal(point.lat)) / self.dLat).quantize(Decimal('1.'), rounding=ROUND_UP) - 1
+            y = Decimal((Decimal(point.lon) - self.minLon) / self.dLon).quantize(Decimal('1.'), rounding=ROUND_UP) - 1
+            if x == -1:
+                x = 0
+            if y == -1:
+                y = 0
+            return self.ReverseIndex[(x, y)], x, y
+        else:
+            return None
+
+    def toGPS(self, index):
+        x, y = index[0], index[1]
+        if self.inMesh(x, y):
+            lat, lon = self.maxLat - x * self.dLat, \
+                       self.minLon + y * self.dLon
+            lat1, lon1 = self.maxLat - (x + 1) * self.dLat, \
+                         self.minLon + (y + 1) * self.dLon
+            lat, lon, lat1, lon1 = float(lat), float(lon), float(lat1), float(lon1)
+            return [[lat, lon], [lat1, lon1]]
+        else:
+            return None
+
+    def toJISMesh(self):
+        JISMesh = []
+        if self.size == '2000m':
+            level = 2000
+        elif self.size == '1000m':
+            level = 3
+        elif self.size == '500m':
+            level = 4
+        elif self.size == '250m':
+            level = 5
+        elif self.size == '100m':
+            level = 6
+        else:
+            assert 'Invalid mesh size'
+
+        for id in range(self.latNum * self.lonNum):
+            x, y = self.Index[id]
+            lat, lon = self.maxLat - x * self.dLat - Decimal('0.5') * self.dLat, \
+                       self.minLon + y * self.dLon + Decimal('0.5') * self.dLon
+            # lon, lat = self.minLon + x * self.dLon, \
+            #                          self.minLat + y * self.dLat
+            lat, lon = float(lat), float(lon)
+            meshcode = ju.to_meshcode(lat, lon, level)
+            JISMesh.append(meshcode)
+
+        return JISMesh
+    
 if __name__ == '__main__':
     tokyo_mesh = Mesh('tokyo', '500m')
-    #tokyo_mesh = Mesh('tokyo', '2000m')
-    # meshcode = ju.to_meshcode(35.658581, 139.745433, 5)
-    # meshcode = ju.to_meshcode(35.658581, 139.745433, 4)
-    # meshcode = ju.to_meshcode(35.658581, 139.745433, 3)
-    # meshcode1 = ju.to_meshcode(35.658581, 139.745433, 2000)
-    # meshlevel = ju.to_meshlevel('533935885')
     meshcode = tokyo_mesh.toJISMesh()
     grid_order = tokyo_mesh.inWhichGrid(Point('akihabara_station'))
     grid_index = tokyo_mesh.Index[grid_order]
     grid_gps = tokyo_mesh.toGPS([29, 38])
     grid_gps2 = tokyo_mesh.toGPS([32, 40])
     grid_meshcode = meshcode[grid_order]
+    
+    tokyo_mesh1 = Mesh1(139.3375, 35.391666666666666, 140.275, 36.016666666666666, 150, 150, '500m')
+    tokyo_meshcodes = tokyo_mesh1.toJISMesh()
+    tokyo_meshcodes = np.array(tokyo_meshcodes)
+    print(tokyo_meshcodes.shape)

@@ -2,6 +2,7 @@ import time
 import pandas as pd
 import numpy as np
 import datetime as dt
+import jismesh.utils as ju
 from Region import Mesh, Mesh1
 
 def select_data(input_file, output_file, day, mesh):
@@ -81,6 +82,16 @@ def gps2mesh(input_file, output_file, mesh):
     interpo_data.to_csv(output_file, index=False, header=0)
     print('gps2mesh is successful', time.ctime())
 
+# this is much slower than gps2mesh(), do not use for large-scale data.
+def gps2mesh_ju(input_file, output_file, mesh):
+    interpo_data = pd.read_csv(input_file, header=None)
+    interpo_data.columns = ['id', 'time', 'lon', 'lat']
+    interpo_data = interpo_data[(interpo_data.lon>=float(mesh.minLon))&(interpo_data.lon<=float(mesh.maxLon))&(interpo_data.lat>=float(mesh.minLat))&(interpo_data.lat<=float(mesh.maxLat))]
+    interpo_data['meshcode'] = interpo_data.apply(lambda x: ju.to_meshcode(x.lat, x.lon, 4), axis=1) # Here is the only difference with gps2grid.
+    interpo_data.sort_values(by=['id', 'time'], inplace=True)
+    interpo_data.to_csv(output_file, index=False, header=0)
+    print('gps2mesh_ju is successful', time.ctime())
+    
 def g(x, all_grid):
     x = x.drop(['time'], axis=1)
     x = pd.merge(x, all_grid, how='outer')
@@ -173,6 +184,7 @@ if __name__ == '__main__':
     interpo_filename = data_path + f'{day}{city}_interpo{time_interval}.csv'
     grid_filename = data_path + f'{day}{city}_interpo{time_interval}_{size}_grid.csv'
     mesh_filename = data_path + f'{day}{city}_interpo{time_interval}_{size}_mesh.csv'
+    mesh_filename_ju = data_path + f'{day}{city}_interpo{time_interval}_{size}_mesh_ju.csv'
     density_npyfilename_g = data_path + f'{day}{city}_interpo{time_interval}_{size}_density_grid.npy'
     density_npyfilename_m = data_path + f'{day}{city}_interpo{time_interval}_{size}_density_mesh.npy'
     density_csvfilename = data_path + f'{day}{city}_interpo{time_interval}_{size}_density_mesh.csv'
@@ -186,6 +198,9 @@ if __name__ == '__main__':
     gps2grid(interpo_filename, grid_filename, mesh)
     print('start gps2mesh...', time.ctime())
     gps2mesh(interpo_filename, mesh_filename, mesh)
+    # this is much slower than gps2mesh(), do not use for large-scale data.
+    print('start gps2mesh_ju...', time.ctime())
+    gps2mesh_ju(interpo_filename, mesh_filename_ju, mesh)
     print('start grid2video...', time.ctime())
     grid2video(grid_filename, density_npyfilename_g, mesh)
     print('start mesh2video...', time.ctime())
@@ -204,6 +219,8 @@ if __name__ == '__main__':
     # gps2grid is successful Sat Sep 18 02:30:01 2021
     # start gps2mesh... Sat Sep 18 02:30:01 2021
     # gps2mesh is successful Sat Sep 18 02:42:21 2021
+    # start gps2mesh_ju... Wed Sep 22 00:57:04 2021
+    # gps2mesh_ju is successful Wed Sep 22 01:21:27 2021
     # start grid2video... Sat Sep 18 02:42:21 2021
     # grid2video is successful Sat Sep 18 02:42:44 2021
     # start mesh2video... Sat Sep 18 02:42:44 2021

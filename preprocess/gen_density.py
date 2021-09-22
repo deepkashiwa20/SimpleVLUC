@@ -82,12 +82,14 @@ def gps2mesh(input_file, output_file, mesh):
     interpo_data.to_csv(output_file, index=False, header=0)
     print('gps2mesh is successful', time.ctime())
 
+# a simpler way for gps2mesh by directly using jismesh library ju.to_meshcode(lat, lon, mesh_level)
 # this is much slower than gps2mesh(), do not use for large-scale data.
 def gps2mesh_ju(input_file, output_file, mesh):
+    mesh_level = 4 # 500m mesh size
     interpo_data = pd.read_csv(input_file, header=None)
     interpo_data.columns = ['id', 'time', 'lon', 'lat']
     interpo_data = interpo_data[(interpo_data.lon>=float(mesh.minLon))&(interpo_data.lon<=float(mesh.maxLon))&(interpo_data.lat>=float(mesh.minLat))&(interpo_data.lat<=float(mesh.maxLat))]
-    interpo_data['meshcode'] = interpo_data.apply(lambda x: ju.to_meshcode(x.lat, x.lon, 4), axis=1) # Here is the only difference with gps2grid.
+    interpo_data['meshcode'] = interpo_data.apply(lambda x: ju.to_meshcode(x.lat, x.lon, mesh_level), axis=1) # Here is the only difference with gps2grid.
     interpo_data.sort_values(by=['id', 'time'], inplace=True)
     interpo_data.to_csv(output_file, index=False, header=0)
     print('gps2mesh_ju is successful', time.ctime())

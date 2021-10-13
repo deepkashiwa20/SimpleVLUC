@@ -13,7 +13,7 @@ PATIENCE = 10
 OPTIMIZER = 'Adam'
 LOSS = 'MSE'
 TRAINVALSPLIT = 0.2
-MAX_VALUE = 868.0
+MAX_VALUE = 868.0 # should be revised to the max_value of your own data.
 
 DATAPATH = '../data/20110301_20110311.npy'
 START_DATE, END_DATE = '2011-03-01', '2011-03-11'

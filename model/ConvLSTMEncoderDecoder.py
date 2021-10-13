@@ -74,8 +74,9 @@ def trainModel(name, mode, XS, YS):
     csv_logger = CSVLogger(os.path.join(PATH, f'{name}.log'))
     checkpointer = ModelCheckpoint(filepath=os.path.join(PATH, f'{name}.h5'), verbose=1, save_best_only=True)
     scheduler = LearningRateScheduler(lambda epoch: LEARN)
+    early_stopping = EarlyStopping(monitor='val_loss', patience=PATIENCE, verbose=1, mode='auto')
     model.fit(XS, YS, batch_size=BATCHSIZE, epochs=EPOCH, shuffle=True, 
-              callbacks=[csv_logger, checkpointer, scheduler], validation_split=TRAINVALSPLIT)
+              callbacks=[csv_logger, checkpointer, scheduler, early_stopping], validation_split=TRAINVALSPLIT)
     YS_pred = model.predict(XS)
     YS, YS_pred = YS * MAX_VALUE, YS_pred * MAX_VALUE
     MSE, RMSE, MAE, MAPE = Metrics.evaluate(YS, YS_pred)

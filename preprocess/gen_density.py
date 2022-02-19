@@ -17,8 +17,10 @@ def select_data(input_file, output_file, day, mesh):
 def f(one_user):
     one_user.drop(['id'], axis=1, inplace=True)
     one_user.set_index('time', inplace=True)
-    one_user.lat.interpolate(method='time', inplace=True, limit_direction='both')
-    one_user.lon.interpolate(method='time', inplace=True, limit_direction='both')
+    # one_user.lat.interpolate(method='time', inplace=True, limit_direction='both')
+    # one_user.lon.interpolate(method='time', inplace=True, limit_direction='both')
+    one_user.lat = one_user.lat.ffill().bfill()
+    one_user.lon = one_user.lon.ffill().bfill()
     return one_user
 
 def interpo_data(input_file, output_file, day, time_interval):

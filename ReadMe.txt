@@ -1,3 +1,12 @@
+Todos
+
+Please rewrite the predictor in tensorflow version to torch version.
+# ./model-torch/ConvLSTMEncoderDecoder-tf2-zscore.py
+
+Please build the predictor with ./model-torch/convGRU.py (first priority) or ./model-torch/convlstm.py (second priority).
+# https://github.com/happyjin/ConvGRU-pytorch
+# https://github.com/ndrplz/ConvLSTM_pytorch
+
 Dependencies
 
 pip install jismesh

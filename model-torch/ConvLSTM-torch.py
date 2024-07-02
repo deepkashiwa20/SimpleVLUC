@@ -369,13 +369,15 @@ def test(testLoader, scaler):
     model = ConvLSTM()
     model.load_state_dict(torch.load(PATH + '.pth'))
     model = model.to(cuda0)
-
+    
     model.eval()
     with torch.no_grad():
         MAE = 0.0
         MSE = 0.0
         RMSE = 0.0
         MAPE = 0.0
+
+        num_batches = len(testLoader)
         for test_idx, test_data in enumerate(testLoader):
             test_x, test_y = test_data
             test_x = test_x.to(cuda0, dtype=torch.float32)
@@ -394,10 +396,10 @@ def test(testLoader, scaler):
             MSE += aMSE#metrics.mean_squared_error(testYS_m, outputs_m)
             RMSE += aRMSE#np.sqrt(mean_squared_error(testYS_m, outputs_m))
             MAPE += aMAPE#metrics.mean_absolute_percentage_error(0.001+ testYS_m.reshape(-1), outputs_m.reshape(-1))
-        MAE = MAE/test_idx
-        MSE = MSE/test_idx
-        RMSE = RMSE/test_idx
-        MAPE = MAPE/test_idx
+        MAE = MAE/num_batches
+        MSE = MSE/num_batches
+        RMSE = RMSE/num_batches
+        MAPE = MAPE/num_batches
 
         print(
             f'\r test: MAE:{MAE:.8f}  MSE:{MSE:.3f}  ' \
